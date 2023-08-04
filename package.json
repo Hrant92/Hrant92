@@ -1,0 +1,30 @@
+{
+  "name": "food-project",
+  "version": "0.17.3",
+  "description": "food project by Hrant92",
+  "main": "index.js",
+  "scripts": {
+   "serve" : "json-server --watch db.json --port 8888"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hrant92/Project-food.git"
+  },
+  "keywords": [
+    "web",
+    "front-and",
+    "food-blog"
+  ],
+  "author": "Hrant92",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hrant92/Project-food/issues"
+  },
+  "homepage": "https://github.com/Hrant92/Project-food#readme",
+  "devDependencies": {
+    "json-server": "^0.17.3"
+  },
+  "dependencies": {
+    "sass": "^1.64.2"
+  }
+}

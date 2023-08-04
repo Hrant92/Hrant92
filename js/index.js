@@ -308,32 +308,32 @@ window.addEventListener("DOMContentLoaded",function (){
 				form.reset();
 			}
 
-			const request = new XMLHttpRequest();
-
-			request.open("POST", "server.php");
-
-			// request.setRequestHeader("Content-type", "multipart/form-data");
-			request.setRequestHeader("Content-type", "application/json");
-
-			const formData = new FormData(form);
-
+		    const formData =new FormData(form);
 			const data = {};
 			formData.forEach((value, key) => data[key] = value);
 
-			request.send(JSON.stringify(data));
 
-			request.addEventListener("load", () => {
-				if (request.status === 200) {
-					console.log(request.response);
-					messagesModal(success);
-					loader.remove();
-					form.reset();
-				} else {
-					messagesModal(failure);
-					loader.remove();
-					form.reset();
-				}
+			fetch("server.php",{
+				method:"POST",
+				headers:{
+					"Content-type": "application/json"
+				},
+				body:JSON.stringify(data)
+
+			})
+			.then(data => data.text())
+			.then(data => {
+				console.log(data);
+				messagesModal(success);
+			})
+			.catch(err => {
+				messagesModal(failure + ":" + err);
+			})
+			.finally(() => {
+				loader.remove();
+				form.reset();
 			});
+
 		});
 	}
 
@@ -360,6 +360,14 @@ window.addEventListener("DOMContentLoaded",function (){
 			closeModal();
 		}, 2000);
 	}
+
+	fetch("http://localhost:8888/menu")
+	.then(data => data.json())
+	.then(data => console.log(data))
+	.catch(err => console.log(err));
+	
+	
+	
 });
  
   
