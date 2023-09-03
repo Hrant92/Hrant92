@@ -160,23 +160,23 @@ window.addEventListener("DOMContentLoaded", function () {
 	// 		this.changeToUAH();
 	// 	};
 
-		// changeToUAH() {
-		// 	this.price = this.price * this.transfer;
-		// };
+	// changeToUAH() {
+	// 	this.price = this.price * this.transfer;
+	// };
 
 	// 	render() {
 	// 		const { img, alt, title, descr, price, parent } = this;
 	// 		const element = document.createElement("div");
 	// 		element.classList.add("menu__item");
 	// 		element.innerHTML = `
-				// <img src=${img} alt=${alt}>
-				// <h3 class="menu__item-subtitle">${title}</h3>
-				// <div class="menu__item-descr">${descr}</div>
-				// <div class="menu__item-divider"></div>
-				// <div class="menu__item-price">
-				// 	<div class="menu__item-cost">Цена:</div>
-				// 	<div class="menu__item-total"><span>${price}</span> грн/день</div>
-				// </div>
+	// <img src=${img} alt=${alt}>
+	// <h3 class="menu__item-subtitle">${title}</h3>
+	// <div class="menu__item-descr">${descr}</div>
+	// <div class="menu__item-divider"></div>
+	// <div class="menu__item-price">
+	// 	<div class="menu__item-cost">Цена:</div>
+	// 	<div class="menu__item-total"><span>${price}</span> грн/день</div>
+	// </div>
 	// 		`;
 
 	// 		parent.append(element);
@@ -194,13 +194,13 @@ window.addEventListener("DOMContentLoaded", function () {
 	axios.get("http://localhost:8888/menu")
 		.then(request => createMenuCards(request.data));
 
-	function createMenuCards (data) {
+	function createMenuCards(data) {
 		data.forEach(({ img, altimg, title, descr, price }) => {
 			const element = document.createElement("div");
 			element.classList.add("menu__item");
 			const transfer = 27.59;
 
-			function changeToUAH () {
+			function changeToUAH() {
 				price = (parseFloat(price) * parseFloat(transfer)).toFixed(2);
 			};
 
@@ -226,7 +226,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
 	const forms = document.querySelectorAll("form");
 
-	function spinner () {
+	function spinner() {
 		return `
 			<?xml version="1.0" encoding="utf-8"?>
 			<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; background: none; display: block; shape-rendering: auto;" width="38px" height="38px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
@@ -291,7 +291,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
 	forms.forEach(form => bindPostData(form));
 
-	async function postData (url, data) {
+	async function postData(url, data) {
 		const request = await fetch(url, {
 			method: "POST",
 			headers: {
@@ -307,7 +307,7 @@ window.addEventListener("DOMContentLoaded", function () {
 		return await request.json();
 	}
 
-	async function getData (url) {
+	async function getData(url) {
 		const request = await fetch(url);
 		if (!request.ok) {
 			throw new Error();
@@ -315,7 +315,7 @@ window.addEventListener("DOMContentLoaded", function () {
 		return await request.json();
 	}
 
-	function bindPostData (form) {
+	function bindPostData(form) {
 		form.addEventListener("submit", (e) => {
 			e.preventDefault();
 
@@ -331,26 +331,46 @@ window.addEventListener("DOMContentLoaded", function () {
 				form.reset();
 			}
 
-			const formData = new FormData(form);
-			// const data = JSON.stringify(Object.fromEntries(formData.entries()));
-			
-			// postData("http://localhost:8888/requests", data)
-			axios.post("http://localhost:8888/requests", Object.fromEntries(formData.entries()))
-			.then(data => {
-				console.log(data);
-				messagesModal( )  ;
-			})
-			.catch(err => {
-				messagesModal(failure + ": " + err);
-			})
-			.finally(() => {
-				loader.remove();
-				form.reset();
-			});
+			const empty = /^$/g;
+			const phone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+			let status = false
+
+			for (let i = 0; i < form.querySelectorAll("input").length; i++) {
+				if (empty.test(form[i].value) || !phone.test(form[1].value)) {
+					status = false;
+					messagesModal("Please fill all fields. On phone filed please fill telephone number format");
+					loader.remove();
+					form.reset();
+					break;
+				} else {
+					status = true;
+				}
+			}
+
+			if (status) {
+				const formData = new FormData(form);
+				// const data = JSON.stringify(Object.fromEntries(formData.entries()));
+
+				// postData("http://localhost:8888/requests", data)
+				axios.post("http://localhost:8888/requests", Object.fromEntries(formData.entries()))
+					.then(data => {
+						console.log(data);
+						messagesModal(success);
+					})
+					.catch(err => {
+						messagesModal(failure + ": " + err);
+					})
+					.finally(() => {
+						loader.remove();
+						form.reset();
+					});
+			} else {
+				console.log("status is falsed");
+			}
 		});
 	}
 
-	function messagesModal (message) {
+	function messagesModal(message) {
 		const prevModalDialog = document.querySelector(".modal__dialog");
 		prevModalDialog.classList.add("hide");
 		openModal();
@@ -366,9 +386,9 @@ window.addEventListener("DOMContentLoaded", function () {
 
 		document.querySelector(".modal").append(messageModal);
 
-		  setTimeout(() => {
+		setTimeout(() => {
 			messageModal.remove();
-			prevModalDialog.classList.add("show"); b  
+			prevModalDialog.classList.add("show");
 			prevModalDialog.classList.remove("hide");
 			closeModal();
 		}, 2000);
@@ -388,13 +408,7 @@ window.addEventListener("DOMContentLoaded", function () {
 	let slideIndex = 1;
 	let offset = 0;
 
-	if (slides.length < 10) {
-		total.textContent = `0${slides.length}`;
-		current.textContent = `0${slideIndex}`;
-	} else {
-		total.textContent = slides.length;
-		current.textContent = slideIndex;
-	}
+	checkForZero()
 
 	slidesInner.style.cssText = `
 		display: flex;
@@ -403,11 +417,7 @@ window.addEventListener("DOMContentLoaded", function () {
 	`;
 
 	slidesWrapper.style.overflow = "hidden";
-
-	slides.forEach(slide => {
-		slide.style.width = width;
-	});
-
+	slides.forEach(slide => slide.style.width = width);
 	slider.style.position = "relative";
 
 	const dots = [];
@@ -452,80 +462,51 @@ window.addEventListener("DOMContentLoaded", function () {
 		dots.push(dot);
 	}
 
-	next.addEventListener("click", () => {
-		if (offset === parseFloat(width.slice(0, width.length - 2)) * (slides.length - 1)) {
-			offset = 0;
-		} else {
-			offset += parseFloat(width.slice(0, width.length - 2));
-		}
-
-		slidesInner.style.transform = `translateX(-${offset}px)`;
-
-		if (slideIndex === slides.length || slideIndex >= slides.length) {
-			slideIndex = 1;
-		} else {
-			slideIndex++;
-		}
-
-		if (slides.length < 10) {
-			total.textContent = `0${slides.length}`;
-			current.textContent = `0${slideIndex}`;
-		} else {
-			total.textContent = slides.length;
-			current.textContent = slideIndex;
-		}
-
-		dots.forEach(dot => dot.style.opacity = 0.5);
-		dots[slideIndex - 1].style.opacity = 1;
-	});
-
-	prev.addEventListener("click", () => {
-		if (offset === 0) {
-			offset = parseFloat(width.slice(0, width.length - 2)) * (slides.length - 1);
-		} else {
-			offset -= parseFloat(width.slice(0, width.length - 2));
-		}
-
-		slidesInner.style.transform = `translateX(-${offset}px)`;
-
-		if (slideIndex === 1 || slideIndex <= 1) {
-			slideIndex = slides.length;
-		} else {
-			slideIndex--;
-		}
-
-		if (slides.length < 10) {
-			total.textContent = `0${slides.length}`;
-			current.textContent = `0${slideIndex}`;
-		} else {
-			total.textContent = slides.length;
-			current.textContent = slideIndex;
-		}
-
-		dots.forEach(dot => dot.style.opacity = 0.5);
-		dots[slideIndex - 1].style.opacity = 1;
-	});
+	next.addEventListener("click", () => sliderLogic(+width.replace(/\D/g, "") * (slides.length - 1), true, false));
+	prev.addEventListener("click", () => sliderLogic(0, false, true));
 
 	dots.forEach(dot => {
 		dot.addEventListener("click", (e) => {
 			const slideTo = e.target.getAttribute("data-slide-to");
 			slideIndex = slideTo;
-			offset = parseFloat(width.slice(0, width.length - 2)) * (slideTo - 1);
-
+			offset = +width.replace(/\D/g, "") * (slideTo - 1);
 			slidesInner.style.transform = `translateX(-${offset}px)`;
 
-			if (slides.length < 10) {
-				total.textContent = `0${slides.length}`;
-				current.textContent = `0${slideIndex}`;
-			} else {
-				total.textContent = slides.length;
-				current.textContent = slideIndex;
-			}
-
-			dots.forEach(dot => dot.style.opacity = 0.5);
-			dots[slideIndex - 1].style.opacity = 1;
+			checkForZero();
+			dotsLogic();
 		});
 	});
+
+	function checkForZero() {
+		if (slides.length < 10) {
+			total.textContent = `0${slides.length}`;
+			current.textContent = `0${slideIndex}`;
+		} else {
+			total.textContent = slides.length;
+			current.textContent = slideIndex;
+		}
+	}
+
+	function dotsLogic () {
+		dots.forEach(dot => dot.style.opacity = 0.5);
+		dots[slideIndex - 1].style.opacity = 1;
+	}
+
+	function sliderLogic (statement, next = false, prev = false) {
+		if (next === true && prev == false) {
+			slideIndex === slides.length || slideIndex >= slides.length ? slideIndex = 1 : slideIndex++;
+			offset === statement ? offset = 0 : offset += +width.replace(/\D/g, "");
+		}
+
+		if (next === false && prev === true) {
+			slideIndex === 1 || slideIndex <= 1 ? slideIndex = slides.length : slideIndex--;
+			offset === statement ? offset = +width.replace(/\D/g, "") * (slides.length - 1) : offset -= +width.replace(/\D/g, "");
+		}
+
+		slidesInner.style.transform = `translateX(-${offset}px)`;
+		checkForZero()
+		dotsLogic();
+	}
 
 	// let slideIndex = 1;
 	// showSlides(slideIndex);
@@ -561,4 +542,4 @@ window.addEventListener("DOMContentLoaded", function () {
 	// function slidesState (n) {
 	// 	showSlides(slideIndex += n);
 	// }
-}); 
+});
